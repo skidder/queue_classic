@@ -81,12 +81,32 @@ module QC
     # from the queue before returning.
     def process(job)
       begin
+        start_heartbeat(job)
         call(job)
       rescue => e
         handle_failure(job, e)
       ensure
+        stop_heartbeat
         QC::Queue.delete(job[:id])
         log(:at => "delete_job", :job => job[:id])
+      end
+    end
+
+    def start_heartbeat(job)
+      wid = SecureRandom.uuid
+      QC.log_yield(:at => "start_heartbeat", :jid => job[:id], :wid => wid) do
+        @heartbeat = Thread.new do
+          loop do
+            sleep(2)
+            QC::Conn.heartbeat(wid, job[:id])
+          end
+        end
+      end
+    end
+
+    def stop_heartbeat
+      QC.log_yield(:at => "stop_heartbeat") do
+        @heartbeat.kill
       end
     end
 
