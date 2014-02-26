@@ -71,7 +71,7 @@ module QC
       log(:at => "establish_conn")
       conn_info = (ENV["QC_DATABASE_URL"] || ENV["DATABASE_URL"]) ? normalize_db_url(db_url) : rails_db_config
       if conn_info
-        PGconn.connect(*conn_info)
+        conn = PGconn.connect(*conn_info)
       else
         raise(ArgumentError, "missing QC_DATABASE_URL or DATABASE_URL")
       end
