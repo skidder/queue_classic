@@ -69,12 +69,31 @@ module QC
 
     def connect
       log(:at => "establish_conn")
-      conn = PGconn.connect(*normalize_db_url(db_url))
+      conn_info = (ENV["QC_DATABASE_URL"] || ENV["DATABASE_URL"]) ? normalize_db_url(db_url) : rails_db_config
+      if conn_info
+        PGconn.connect(*conn_info)
+      else
+        raise(ArgumentError, "missing QC_DATABASE_URL or DATABASE_URL")
+      end
+
       if conn.status != PGconn::CONNECTION_OK
         log(:error => conn.error)
       end
       conn.exec("SET application_name = '#{QC::APP_NAME}'")
       conn
+    end
+
+    def rails_db_config
+      config   = Rails.configuration.database_configuration
+
+      [
+       config[Rails.env]["host"],
+       config[Rails.env]["port"] || 5432,
+       nil, '', #opts, tty
+       config[Rails.env]["database"], # database name
+       config[Rails.env]["username"],
+       config[Rails.env]["password"]
+      ]
     end
 
     def normalize_db_url(url)
@@ -94,8 +113,7 @@ module QC
     def db_url
       return @db_url if @db_url
       url = ENV["QC_DATABASE_URL"] ||
-            ENV["DATABASE_URL"]    ||
-            raise(ArgumentError, "missing QC_DATABASE_URL or DATABASE_URL")
+            ENV["DATABASE_URL"]
       @db_url = URI.parse(url)
     end
 
