@@ -1,5 +1,6 @@
 source "http://rubygems.org"
 
+gem "uuid"
 gem "rake"
 
 gemspec
