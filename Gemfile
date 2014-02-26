@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "uuid"
+gem 'uuidtools', '>= 2.1.0'
 gem "rake"
 
 gemspec

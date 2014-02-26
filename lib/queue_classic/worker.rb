@@ -93,7 +93,7 @@ module QC
     end
 
     def start_heartbeat(job)
-      wid = UUID.uuid4
+      wid = UUIDTools::UUID.random_create
       QC.log_yield(:at => "start_heartbeat", :jid => job[:id], :wid => wid) do
         @heartbeat = Thread.new do
           loop do
