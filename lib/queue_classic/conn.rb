@@ -24,7 +24,7 @@ module QC
       end
     end
 
-    def wait(*channels)
+    def wait(channels)
       listen_cmds = channels.map {|c| 'LISTEN "' + c + '"'}
       execute(listen_cmds.join(';'))
       wait_for_notify(WAIT_TIME)
