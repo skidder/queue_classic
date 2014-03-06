@@ -5,12 +5,6 @@ require 'queue_classic/conn'
 module QC
   class Worker
 
-    def self.setup_queues(names, top_bound)
-      names.map do |name|
-        QC::Queue.new(name, top_bound)
-      end
-    end
-
     attr_accessor :queues, :running
     # In the case no arguments are passed to the initializer,
     # the defaults are pulled from the environment variables.
@@ -19,7 +13,7 @@ module QC
       name = args[:q_name] || QC::QUEUE
       names = args[:q_names] || QC::QUEUES
       names << name unless names.include?(name)
-      @queues = self.class.setup_queues(names, args[:top_bound])
+      @queues = [ QC::Queue.new(name, args[:top_bound]) ]
       log(args.merge(:at => "worker_initialized"))
       @running = true
     end
