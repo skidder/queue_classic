@@ -69,9 +69,7 @@ module QC
           break if job = queue.lock
         end
         break if job
-        log "Connection wait starting, #{@wait_interval}"
         Conn.wait(@wait_interval, @queues.map {|q| q.name})
-        log "Connection wait finished, #{@wait_interval}"
       end
       job
     end
