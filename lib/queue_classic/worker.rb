@@ -10,6 +10,7 @@ module QC
     # the defaults are pulled from the environment variables.
     def initialize(args={})
       @fork_worker = args[:fork_worker] || QC::FORK_WORKER
+      @wait_interval = args[:wait_interval] || QC::WAIT_TIME
       name = args[:q_name] || QC::QUEUE
       names = args[:q_names] || QC::QUEUES
       names << name unless names.include?(name)
@@ -68,7 +69,7 @@ module QC
           break if job = queue.lock
         end
         break if job
-        Conn.wait(@queues.map {|q| q.name})
+        Conn.wait(@wait_interval, @queues.map {|q| q.name})
       end
       job
     end
