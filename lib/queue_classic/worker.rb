@@ -18,11 +18,15 @@ module QC
       @running = true
     end
 
+    def running?
+      @running
+    end
+
     # Start a loop and work jobs indefinitely.
     # Call this method to start the worker.
     # This is the easiest way to start working jobs.
     def start
-      while @running
+      while running?
         @fork_worker ? fork_and_work : work
       end
     end
@@ -58,7 +62,7 @@ module QC
     def lock_job
       log(:at => "lock_job")
       job = nil
-      while @running
+      while running?
         job = nil
         @queues.each do |queue|
           break if job = queue.lock
